@@ -12,6 +12,10 @@ import (
 	"snippetbox.loknath.net/internal/models"
 )
 
+/*
+	application is a custom type. To work effectively, application needs to show logs, snippets,
+	preload templates. That's what is here. This is a note to myself for better understanding.
+*/
 type application struct {
 	errorLog      *log.Logger
 	infoLog       *log.Logger
@@ -21,17 +25,17 @@ type application struct {
 
 func main() {
 
-	// command line flag
+	// command line flags
 	addr := flag.String("addr", ":4000", "HTTP network address")
 	dsn := flag.String("dsn", "web:pass@/snippetbox?parseTime=true", "MySQL data source name")
 
 	flag.Parse()
 
-	// custom logger
+	// custom logger for better logging
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
-	// database
+	// open & close database connection
 	db, err := openDB(*dsn)
 	if err != nil {
 		errorLog.Fatal(err)
