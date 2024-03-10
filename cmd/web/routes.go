@@ -13,6 +13,6 @@ func (app *application) routes() http.Handler {
 	mux.HandleFunc("/snippet/view", app.snippetView)
 	mux.HandleFunc("/snippet/create", app.snippetCreate)
 
-	// wrapping middleware
-	return secureHeaders(mux)
+	// wrapping the chain with middleware
+	return app.recoverPanic(app.logRequest(secureHeaders(mux)))
 }
