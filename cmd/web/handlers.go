@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
+	"unicode/utf8"
 
 	"github.com/julienschmidt/httprouter"
 	"snippetbox.loknath.net/internal/models"
@@ -91,6 +93,32 @@ func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	// to hold any validation errors for the form fields
+	fieldErrors := make(map[string]string)
+
+	// title cannot be blank and not more than 100 characters long
+	if strings.TrimSpace(title) == ""{
+		fieldErrors["title"] = "This field cannot be blank"
+	} else if utf8.RuneCountInString(title) > 100 {
+		fieldErrors["title"] = "This field cannot be more than 100 characters long"
+	}
+
+	// content cannot be blank
+	if strings.TrimSpace(content) == "" {
+		fieldErrors["content"] = "This field cannot be blank"
+	}
+
+	// expires values should be matched
+	if expires != 11 && expires != 7 && expires != 365 {
+		fieldErrors["expires"] = "This field must equal 1, 7 or 365"
+	}
+
+	// any errors, dump them in plain text http response
+	if len(fieldErrors) > 0 {
+		fmt.Fprint(w, fieldErrors)
+		return
+	}
+
 	id, err := app.snippets.Insert(title, content, expires)
 	if err != nil {
 		app.serverError(w, err)
@@ -98,5 +126,4 @@ func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request
 	}
 
 	http.Redirect(w, r, fmt.Sprintf("/snippet/view/%d", id), http.StatusSeeOther)
-	// w.Write([]byte("Create a new snippet..."))
 }
