@@ -12,6 +12,13 @@ import (
 	"snippetbox.loknath.net/internal/models"
 )
 
+type snippetCreateForm struct {
+	Title       string
+	Content     string
+	Expires     int
+	FieldErrors map[string]string
+}
+
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
 
 	// if r.URL.Path != "/" {
@@ -93,33 +100,40 @@ func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	// to hold any validation errors for the form fields
-	fieldErrors := make(map[string]string)
+	// instance of SnippetCreateForm struct
+	form := snippetCreateFrom{
+		Title:       r.PostForm.Get("title"),
+		Content:     r.PostForm.Get("content"),
+		Expires:     expires,
+		FieldErrors: map[string]string,
+	}
 
 	// title cannot be blank and not more than 100 characters long
-	if strings.TrimSpace(title) == ""{
-		fieldErrors["title"] = "This field cannot be blank"
-	} else if utf8.RuneCountInString(title) > 100 {
-		fieldErrors["title"] = "This field cannot be more than 100 characters long"
+	if strings.TrimSpace(form.Title) == "" {
+		form.FieldErrors["title"] = "This field cannot be blank"
+	} else if utf8.RuneCountInString(form.title) > 100 {
+		form.FieldErrors["title"] = "This field cannot be more than 100 characters long"
 	}
 
 	// content cannot be blank
-	if strings.TrimSpace(content) == "" {
-		fieldErrors["content"] = "This field cannot be blank"
+	if strings.TrimSpace(form.content) == "" {
+		form.FieldErrors["content"] = "This field cannot be blank"
 	}
 
 	// expires values should be matched
-	if expires != 11 && expires != 7 && expires != 365 {
-		fieldErrors["expires"] = "This field must equal 1, 7 or 365"
+	if form.Expires != 11 && form.Expires != 7 && form.Expires != 365 {
+		form.FieldErrors["expires"] = "This field must equal 1, 7 or 365"
 	}
 
 	// any errors, dump them in plain text http response
-	if len(fieldErrors) > 0 {
-		fmt.Fprint(w, fieldErrors)
+	if len(form.FieldErrors) > 0 {
+		data := app.newTemplateData(r)
+		data.Form = form
+		app.render(w, http.StatusUnprocessableEntity, "create.tmpl.html", data)
 		return
 	}
 
-	id, err := app.snippets.Insert(title, content, expires)
+	id, err := app.snippets.Insert(form.Title, form.Content, form.Expires)
 	if err != nil {
 		app.serverError(w, err)
 		return
