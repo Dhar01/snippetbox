@@ -68,6 +68,10 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
 	data := app.newTemplateData(r)
 
+	data.Form = snippetCreateForm{
+		Expires: 365,
+	}
+
 	app.render(w, http.StatusOK, "create.tmpl.html", data)
 }
 
@@ -86,8 +90,8 @@ func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request
 	}
 
 	// retrieve title and content
-	title := r.PostForm.Get("title")
-	content := r.PostForm.Get("content")
+	// title := r.PostForm.Get("title")
+	// content := r.PostForm.Get("content")
 
 	// // dummy data
 	// title := "O snail"
@@ -101,22 +105,22 @@ func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request
 	}
 
 	// instance of SnippetCreateForm struct
-	form := snippetCreateFrom{
+	form := snippetCreateForm{
 		Title:       r.PostForm.Get("title"),
 		Content:     r.PostForm.Get("content"),
 		Expires:     expires,
-		FieldErrors: map[string]string,
+		FieldErrors: map[string]string{},
 	}
 
 	// title cannot be blank and not more than 100 characters long
 	if strings.TrimSpace(form.Title) == "" {
 		form.FieldErrors["title"] = "This field cannot be blank"
-	} else if utf8.RuneCountInString(form.title) > 100 {
+	} else if utf8.RuneCountInString(form.Title) > 100 {
 		form.FieldErrors["title"] = "This field cannot be more than 100 characters long"
 	}
 
 	// content cannot be blank
-	if strings.TrimSpace(form.content) == "" {
+	if strings.TrimSpace(form.Content) == "" {
 		form.FieldErrors["content"] = "This field cannot be blank"
 	}
 
