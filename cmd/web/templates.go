@@ -12,7 +12,7 @@ type templateData struct {
 	CurrentYear int
 	Snippet     *models.Snippet
 	Snippets    []*models.Snippet
-	Form 		any
+	Form        any
 }
 
 // * returns formatted string representation of a time.Time object

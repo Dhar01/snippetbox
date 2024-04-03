@@ -13,8 +13,8 @@ import (
 )
 
 /*
-	application is a custom type. To work effectively, application needs to show logs, snippets,
-	preload templates. That's what is here. This is a note to myself for better understanding.
+application is a custom type. To work effectively, application needs to show logs, snippets,
+preload templates. That's what is here. This is a note to myself for better understanding.
 */
 type application struct {
 	errorLog      *log.Logger
@@ -49,9 +49,9 @@ func main() {
 	}
 
 	app := &application{
-		errorLog: errorLog,
-		infoLog:  infoLog,
-		snippets: &models.SnippetModel{DB: db},
+		errorLog:      errorLog,
+		infoLog:       infoLog,
+		snippets:      &models.SnippetModel{DB: db},
 		templateCache: templateCache,
 	}
 

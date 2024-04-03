@@ -16,7 +16,7 @@ func (v *Validator) Valid() bool {
 }
 
 // AddFieldError() adds an error message to the FieldErrors map
-func(v *Validator) AddFieldError(key, message string) {
+func (v *Validator) AddFieldError(key, message string) {
 	if v.FieldErrors == nil {
 		v.FieldErrors = make(map[string]string)
 	}
@@ -27,7 +27,7 @@ func(v *Validator) AddFieldError(key, message string) {
 }
 
 // CheckField() adds an error message to the FieldErrors map only if a validation check is not 'ok'
-func(v *Validator) CheckField(ok bool, key, message string) {
+func (v *Validator) CheckField(ok bool, key, message string) {
 	if !ok {
 		v.AddFieldError(key, message)
 	}
